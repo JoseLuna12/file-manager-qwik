@@ -8,6 +8,7 @@ import { RouterHead } from "./components/router-head/router-head";
 
 import "@fontsource/outfit"
 import "./global.css";
+import { css } from "./styled-system/css";
 
 export default component$(() => {
   /**
@@ -24,7 +25,7 @@ export default component$(() => {
         <link rel="manifest" href="/manifest.json" />
         <RouterHead />
       </head>
-      <body lang="en">
+      <body lang="en" class={css({ background: "bg" })}>
         <RouterOutlet />
         <ServiceWorkerRegister />
       </body>

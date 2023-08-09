@@ -39,6 +39,8 @@
     "vite-tsconfig-paths": "4.2.0"
   },
   "dependencies": {
-    "@fontsource/outfit": "^5.0.8"
+    "@fontsource/outfit": "^5.0.8",
+    "firebase": "^10.1.0",
+    "firebase-admin": "^11.10.1"
   }
 }

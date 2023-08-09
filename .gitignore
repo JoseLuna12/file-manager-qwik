@@ -4,6 +4,9 @@
 /lib-types
 /server
 
+# secrets
+*admin_sdk.json
+
 # Development
 node_modules
 *.local

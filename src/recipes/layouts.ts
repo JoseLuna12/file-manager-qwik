@@ -11,6 +11,14 @@ export const columnR = cva({
     width: "full",
   },
   variants: {
+    size: {
+      fill: {
+        flex: "1",
+      },
+      content: {
+        flex: "none",
+      },
+    },
     gap: {
       sm: {
         gap: "sm",
@@ -72,8 +80,20 @@ export const rowR = cva({
     justifyContent: "center",
     alignItems: "start",
     gap: "1px",
+    flex: "1",
+    "@media (max-width: 572px)": {
+      flexDir: "column",
+    },
   },
   variants: {
+    size: {
+      fill: {
+        flex: "1",
+      },
+      content: {
+        flex: "none",
+      },
+    },
     gap: {
       sm: {
         gap: "sm",
