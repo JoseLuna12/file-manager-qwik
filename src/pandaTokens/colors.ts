@@ -5,7 +5,7 @@ export const colors = defineTokens.colors({
     100: { value: "#E3EAFC" },
     200: { value: "#A4BAF3" },
     300: { value: "#759BF5" },
-    400: { value: "#487DFB" },
+    400: { value: "#2B6AFF" },
     500: { value: "#1057FF" },
     600: { value: "#2057D7" },
     700: { value: "#2851B1" },
@@ -60,34 +60,50 @@ export const colors = defineTokens.colors({
     white: { value: "#FEFEFF" },
     gray: { value: "#DCDCE1" },
     darkgray: { value: "#494951" },
+    lightgray: { value: "#B8B8CA" },
     black: { value: "#11111C" },
   },
   white: { value: "#FFFEFF" },
   light: { value: "#F5F5FA" },
   gray: { value: "#3F3F47" },
-  dark: { value: "#040415" },
+  dark: { value: "#232329" },
+  lightOpacity: { value: "rgba(117, 155, 245, 0.6)" },
+  darkOpacity: { value: "#060E23" },
 });
 
 export const semanticColors = defineSemanticTokens.colors({
   normal: {
-    value: { base: "{colors.primary.500}", _dark: "{colors.green.500}" },
+    value: { base: "{colors.primary.500}", _dark: "{colors.primary.500}" },
+  },
+  check: {
+    value: { base: "{colors.green.700}", _dark: "{colors.green.600}" },
   },
   success: {
     value: { base: "{colors.green.600}", _dark: "{colors.green.500}" },
   },
   danger: {
-    value: { base: "{colors.red.500}", _dark: "{colors.green.400}" },
+    value: { base: "{colors.red.500}", _dark: "{colors.red.400}" },
   },
   bg: {
     value: { base: "{colors.light}", _dark: "{colors.dark}" },
   },
   child_bg: {
-    value: { base: "{colors.primary.100}", _dark: "{colors.primary.800}" },
+    value: { base: "{colors.primary.100}", _dark: "{colors.primary.900}" },
   },
   complement: {
     value: { base: "{colors.white}", _dark: "{colors.gray}" },
   },
   text: {
-    value: { base: "{colors.neutral.black}", _dark: "{colors.neutral.white}" },
+    value: { base: "{colors.neutral.black}", _dark: "{colors.white}" },
+  },
+  shadowColor: {
+    value: { base: "{colors.lightOpacity}", _dark: "{colors.darkOpacity}" },
+  },
+  nav: {
+    value: {
+      base: "{colors.gray}",
+      _navLinkActive: "{colors.primary.400}",
+      _dark: "{colors.neutral.lightgray}",
+    },
   },
 });

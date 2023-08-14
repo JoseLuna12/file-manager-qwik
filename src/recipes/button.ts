@@ -7,17 +7,55 @@ export const buttonR = cva({
     borderRadius: "sm",
     minW: "100px",
     transition: "ease-in, 0.3s",
+    cursor: "pointer",
+    _disabled: {
+      cursor: "not-allowed",
+      pointerEvents: "none",
+    },
   },
   variants: {
     colors: {
+      text: {
+        background: "none",
+        color: "text",
+        borderWidth: "0px",
+        _hover: {
+          borderWidth: "1px",
+          borderStyle: "solid",
+          borderColor: "text",
+        },
+      },
+      outline: {
+        borderWidth: "1px",
+        borderColor: "normal",
+        color: "normal",
+        _hover: {
+          "&:not([disabled])": {
+            borderColor: "primary.400",
+            color: "primary.400",
+          },
+        },
+        _active: {
+          "&:not([disabled])": {
+            borderColor: "primary.300",
+            color: "primary.300",
+          },
+        },
+        _disabled: {
+          borderColor: "gray",
+          color: "primary.gray",
+        },
+      },
       primary: {
         background: "normal",
         color: "primary.100",
         _hover: {
-          bg: "primary.600",
+          "&:not([disabled])": {
+            bg: "primary.400",
+          },
         },
         _active: {
-          bg: "primary.400",
+          "&:not([disabled])": { bg: "primary.300" },
         },
         _disabled: {
           bg: "gray",
@@ -27,10 +65,10 @@ export const buttonR = cva({
         background: "danger",
         color: "red.100",
         _hover: {
-          bg: "red.600",
+          "&:not([disabled])": { bg: "red.600" },
         },
         _active: {
-          bg: "red.400",
+          "&:not([disabled])": { bg: "red.400" },
         },
         _disabled: {
           bg: "gray",
@@ -40,10 +78,10 @@ export const buttonR = cva({
         background: "success",
         color: "green.100",
         _hover: {
-          bg: "green.700",
+          "&:not([disabled])": { bg: "green.700" },
         },
         _active: {
-          bg: "green.600",
+          "&:not([disabled])": { bg: "green.600" },
         },
         _disabled: {
           bg: "gray",

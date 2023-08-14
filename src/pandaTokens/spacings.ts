@@ -1,6 +1,7 @@
 import { defineSemanticTokens, defineTokens } from "@pandacss/dev";
 
 export const spacings = defineTokens.spacing({
+  "2xl": { value: "40px" },
   xl: { value: "30px" },
   lg: { value: "18px" },
   md: { value: "11px" },
@@ -14,6 +15,7 @@ export const sematincSpacings = defineSemanticTokens.spacing({
   py: {
     value: "{spacing.sm}",
   },
+  containerPadding: { value: "{spacing.2xl}" },
 });
 
 export const radii = defineTokens.radii({

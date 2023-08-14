@@ -86,6 +86,11 @@ export const rowR = cva({
     },
   },
   variants: {
+    overflow: {
+      auto: {
+        overflow: "auto",
+      },
+    },
     size: {
       fill: {
         flex: "1",
@@ -143,6 +148,35 @@ export const rowR = cva({
       },
       baseline: {
         alignItems: "baseline",
+      },
+    },
+  },
+});
+
+export const imgContainerR = cva({
+  base: {
+    p: "15px",
+    h: "190px",
+    backgroundColor: "bg",
+    borderRadius: "20px",
+    transition: "ease-in-out, 0.3s",
+    cursor: "pointer",
+    borderWidth: "0.7px",
+    borderColor: "complement",
+    _hover: {
+      borderWidth: "0.7px",
+      borderColor: "normal",
+    },
+  },
+  variants: {
+    shadow: {
+      selected: {
+        shadow: "selectionShadow",
+        borderWidth: "0.7px",
+        borderColor: "normal",
+      },
+      unselected: {
+        shadow: "none",
       },
     },
   },

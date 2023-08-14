@@ -7,6 +7,7 @@ import { css, cva } from "~/styled-system/css";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "~/firebase/init";
 import admin from "~/firebase/admin";
+import { textR } from "~/recipes/text";
 
 
 
@@ -85,26 +86,26 @@ export default component$(() => {
         <div class={css({ py: "30px", px: "0px", h: "dvh", w: "dvw", display: "flex", sm: { px: "30px" } })}>
             <div class={rowR({ mainAxisAlignment: "start", crossAxisAligment: "center" })}>
                 <div class={css({ alignSelf: "center", justifySelf: "start", flex: "0", sm: { flex: "1", alignSelf: "start" } })}>
-                    <h3 class={css({ textStyle: "header" })}>Manager</h3>
+                    <h3 class={textR({ size: "2xl", weight: "bold" })}>Manager</h3>
                     <div class={css({ h: "100px" })}></div>
                 </div>
                 <div class={css({ flex: "1", display: "flex", justifyContent: "center" })}>
                     <div class={loginContainer()}>
                         <Form action={login} class={columnR({ crossAxisAligment: "stretch", size: "fill", gap: "md" })}>
-                            <h2 class={css({ textStyle: "header", fontWeight: "regular" })}>Login</h2>
+                            <h2 class={textR({ size: "xl" })}>Login</h2>
                             <div class={css({ h: "10px", py: "5px", textStyle: "text", color: "danger" })}>
                                 {login.value?.error}
                             </div>
                             <div class={columnR({ crossAxisAligment: "stretch", size: "content" })}>
-                                <label for="email" >Email</label>
+                                <label for="email" class={textR()} >Email</label>
                                 <input readOnly={login.isRunning} name="email" type="email" placeholder="Enter your email" required class={inputR()} />
                             </div>
                             <div class={columnR({ crossAxisAligment: "stretch", size: "content" })}>
-                                <label for="password" >Password</label>
+                                <label for="password" class={textR()}>Password</label>
                                 <input readOnly={login.isRunning} name="password" type="password" placeholder="•••••••••••" required class={inputR()} />
                             </div>
                             <div class={rowR({ mainAxisAlignment: "end", size: "content" })}>
-                                <a href="#" class={css({ textStyle: "text" })}>Forgot password</a>
+                                <a href="#" class={textR({ size: "sm" })}>Forgot password</a>
                             </div>
                             <div class={css({ px: "md", display: "flex", flexDir: "column" })}>
                                 <button disabled={login.isRunning} type="submit" class={buttonR({ colors: "primary" })} >Login</button>
