@@ -99,6 +99,12 @@ export const semanticColors = defineSemanticTokens.colors({
   shadowColor: {
     value: { base: "{colors.lightOpacity}", _dark: "{colors.darkOpacity}" },
   },
+  fileUploadContainer: {
+    value: { base: "{colors.primary.100}", _dark: "{colors.primary.900}" },
+  },
+  fileUploadBorder: {
+    value: { base: "{colors.primary.300}", _dark: "{colors.primary.700}" },
+  },
   nav: {
     value: {
       base: "{colors.gray}",

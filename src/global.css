@@ -43,3 +43,12 @@ body {
   padding: 0;
   line-height: inherit;
 }
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}

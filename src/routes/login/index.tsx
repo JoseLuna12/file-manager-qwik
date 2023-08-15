@@ -69,7 +69,7 @@ export const useLoginAction = routeAction$(async (data, { redirect, cookie }) =>
             user.getIdToken().then(token => {
                 cookie.set("user_token", token, { path: "/" });
                 cookie.set("user", JSON.stringify({ email: user.email, id: user.uid }), { path: "/" });
-                throw redirect(302, "/dashboard");
+                throw redirect(302, "/dashboard/file");
             })
         })
         .catch((error) => {

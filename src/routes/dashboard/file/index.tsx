@@ -116,10 +116,19 @@ export default component$(() => {
         })
     });
 
+    const copyUrl = $((url: string) => {
+        navigator.clipboard.writeText(url);
+    })
+
+    const deleteImage = $((id: string) => {
+        if (id == "") return;
+        console.log(id)
+    })
+
     return (
         <div class={css({ flex: "1", display: "flex", flexDir: "column", })}>
             <div class={css({ pb: "lg", display: "flex", justifyContent: "end" })}>
-                <button class={buttonR({ colors: "primary" })} >Upload Images</button>
+                <a href="/dashboard/upload" class={buttonR({ colors: "primary" })} >Upload Images</a>
             </div>
             <div class={css({ display: "flex", flex: "1", gap: "lg", })}>
                 <div class={css({ bg: "complement", flex: "1", position: "relative", borderRadius: "md", py: "containerPadding" })}>
@@ -170,11 +179,11 @@ export default component$(() => {
                                 <img class={css({ borderRadius: "md" })} src={selectedImage.value.image} alt={selectedImage.value.name} width={"220"} height={"200"} />
                             </div>
                             <div class={css({ display: "flex", justifyContent: "space-around", py: "sm" })}>
-                                <button class={buttonR({ colors: "outline" })}>Copy url</button>
+                                <button onClick$={() => copyUrl(selectedImage.value?.image ?? "")} class={buttonR({ colors: "outline" })}>Copy url</button>
                                 <button disabled class={buttonR({ colors: "primary" })}>Copy Image</button>
                             </div>
                             <div class={css({ mt: "auto", display: "flex", flexDir: "column", pb: "md" })}>
-                                <button class={buttonR({ colors: "danger" })}>Delete</button>
+                                <button onClick$={() => deleteImage(selectedImage.value?.id ?? "")} class={buttonR({ colors: "danger" })}>Delete</button>
                             </div>
                         </div>
                     </div>

@@ -56,6 +56,10 @@ export default defineConfig({
           type: "url",
           value: "url('/svg/image-select-success.svg')",
         },
+        file: {
+          type: "url",
+          value: "url('/svg/file.svg')",
+        },
       },
       shadows: shadows,
       colors: colors,

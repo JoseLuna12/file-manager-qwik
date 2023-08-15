@@ -21,6 +21,6 @@
       "~/*": ["./src/*"]
     }
   },
-  "files": ["./.eslintrc.cjs"],
+  "files": ["./.eslintrc.cjs", "./src/routes/dashboard/upload/newFile.tsx"],
   "include": ["src", "./*.d.ts", "./*.config.ts"]
 }

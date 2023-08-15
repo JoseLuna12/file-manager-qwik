@@ -24,6 +24,14 @@ export const textR = cva({
     color: "text",
   },
   variants: {
+    wrap: {
+      wrap: {
+        textOverflow: "ellipsis",
+      },
+      nowrap: {
+        textWrap: "nowrap",
+      },
+    },
     size: {
       "2xl": {
         textStyle: "xlHeader",
