@@ -22,10 +22,15 @@ export const useSubmitFiles = routeAction$(async (data) => {
         console.log("uploading server", { file: f.name })
         const fileName = f.name
         const mime = f.type
-        const arrBuffer = await f.arrayBuffer()
-        const buffer = Buffer.from(arrBuffer)
-
         try {
+
+            if (!fileTypes.includes(mime)) {
+                throw "error, file not supported"
+            }
+
+            const arrBuffer = await f.arrayBuffer()
+            const buffer = Buffer.from(arrBuffer)
+
             await storage.bucket().file(fileName).save(buffer, { metadata: { mime } })
             response[fileName] = "success"
         } catch {
@@ -35,12 +40,11 @@ export const useSubmitFiles = routeAction$(async (data) => {
     return response
 })
 
-// const fileTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"]
+const fileTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"]
 
 export default component$(() => {
     const dragRef = useSignal<HTMLElement>();
     const submitRef = useSignal<HTMLFormElement>();
-    // const filesSignal = useSignal<NoSerialize<File[]>>()
     const fileStatus = useStore<{ [key: string]: { percent: string, status: string } }>({})
     const submitFiles = useSubmitFiles()
 
@@ -159,8 +163,16 @@ export default component$(() => {
                                     </p>
                                 </div>
                                 <div class={css({ flex: "1", bg: "white", display: "flex", h: "2px" })}>
-                                    <div class={css({ bg: "green.600" })} style={{ width: `${fileStatus[key].percent}%` }}>
-                                    </div>
+                                    {
+                                        fileStatus[key].status == "loading" ?
+                                            <div class={css({ bg: "blue.600" })} style={{ width: `${fileStatus[key].percent}%` }}></div>
+                                            :
+                                            fileStatus[key].status == "success" ?
+                                                <div class={css({ bg: "green.600" })} style={{ width: `${fileStatus[key].percent}%` }}></div>
+                                                :
+                                                <div class={css({ bg: "red.600" })} style={{ width: `${fileStatus[key].percent}%` }}></div>
+                                    }
+
                                 </div>
                                 <div class={css({ flex: "0.1", display: "flex", flexDir: "row", justifyContent: "center" })}>
                                     {
