@@ -1,27 +1,35 @@
 import { $, type QwikChangeEvent, component$, useSignal, useVisibleTask$, noSerialize, useStore, useTask$, } from "@builder.io/qwik";
-// import { app } from "~/firebase/init";
-// import { getStorage, ref, uploadBytes } from "firebase/storage";
-// import { getAuth, signInWithCustomToken } from "firebase/auth";
 
 import { textR } from "~/recipes/text";
 import { css } from "~/styled-system/css";
-//routeAction$, type RequestHandler, 
 import { Form, routeAction$, } from "@builder.io/qwik-city";
 import admin from "~/firebase/admin";
+import { getDownloadURL } from "firebase-admin/storage"
+import { process_image } from "../../../../plugins/image"
 
-export const useSubmitFiles = routeAction$(async (data) => {
-    // console.log(data)
+export const useSubmitFiles = routeAction$(async (data, { cookie }) => {
+    const user = cookie.get("user")
+    if (user == null) return;
+    const userData = user.json() as { id: string }
     const files = data.file as any
-
     if (files[0]?.name == "undefined") return;
+
+    const db = admin.firestore()
+
     const storage = admin.storage()
     const response: { [key: string]: string } = {}
 
     for (const f of files) {
         if (f.name == "undefined") continue;
+
         console.log("uploading server", { file: f.name })
         const fileName = f.name
-        const mime = f.type
+        const mime = f.type as string
+        const extension = mime.split("/")[1]
+
+        const fileLocation = `images/${userData.id}/${fileName}`
+
+
         try {
 
             if (!fileTypes.includes(mime)) {
@@ -31,9 +39,75 @@ export const useSubmitFiles = routeAction$(async (data) => {
             const arrBuffer = await f.arrayBuffer()
             const buffer = Buffer.from(arrBuffer)
 
-            await storage.bucket().file(fileName).save(buffer, { metadata: { mime } })
+            const fullSizeImage = await process_image(new Uint8Array(arrBuffer), extension, fileName, "high")
+
+            // main()
+            const halfImage = await process_image(new Uint8Array(arrBuffer), extension, fileName, "half")
+            const halfImageArr = new Uint8Array(halfImage.image)
+            const halfBuffer = Buffer.from(halfImageArr)
+            const halfFileLocation = `images/${userData.id}/thumbnail_half_${fileName}`
+
+            const medImage = await process_image(new Uint8Array(arrBuffer), extension, fileName, "med")
+            const medImageArr = new Uint8Array(medImage.image)
+            const medBuffer = Buffer.from(medImageArr)
+            const medFileLocation = `images/${userData.id}/thumbnail_med_${fileName}`
+
+            const lowImage = await process_image(new Uint8Array(arrBuffer), extension, fileName, "low")
+            const lowImageArr = new Uint8Array(lowImage.image)
+            const lowBuffer = Buffer.from(lowImageArr)
+            const lowFileLocation = `images/${userData.id}/thumbnail_low_${fileName}`
+
+            const promises = [
+                storage.bucket().file(fileLocation).save(buffer, { metadata: { mime }, contentType: mime }),
+                storage.bucket().file(halfFileLocation).save(halfBuffer, { metadata: { mime }, contentType: mime }),
+                storage.bucket().file(medFileLocation).save(medBuffer, { metadata: { mime }, contentType: mime }),
+                storage.bucket().file(lowFileLocation).save(lowBuffer, { metadata: { mime }, contentType: mime })
+            ]
+
+
+            await Promise.allSettled(promises)
+
+            const fullResUrl = await getDownloadURL(storage.bucket().file(fileLocation))
+            const halfResUrl = await getDownloadURL(storage.bucket().file(halfFileLocation))
+            const medResUrl = await getDownloadURL(storage.bucket().file(medFileLocation))
+            const lowResUrl = await getDownloadURL(storage.bucket().file(lowFileLocation))
+
+            await db.collection(userData.id)
+                .doc("files")
+                .collection("images")
+                .doc()
+                .set({
+                    fullRes: {
+                        image: fullResUrl,
+                        width: fullSizeImage.width,
+                        height: fullSizeImage.height,
+                        location: fileLocation
+                    },
+                    halfRes: {
+                        image: halfResUrl,
+                        width: halfImage.width,
+                        height: halfImage.height,
+                        location: halfFileLocation
+                    },
+                    medRes: {
+                        image: medResUrl,
+                        width: medImage.width,
+                        height: medImage.height,
+                        location: medFileLocation
+                    },
+                    lowRes: {
+                        image: lowResUrl,
+                        width: lowImage.width,
+                        height: lowImage.height,
+                        location: lowFileLocation
+                    },
+                    filename: fileName, type: mime
+                })
+
+
             response[fileName] = "success"
-        } catch {
+        } catch (err) {
+            console.log(err)
             response[fileName] = "error"
         }
     }
@@ -98,13 +172,8 @@ export default component$(() => {
 
             submitRef.value?.requestSubmit()
         }
-        // submitRef.value?.click()
-    })
 
-    // const fileManagerSubmit = $(async (event: Event) => {
-    //     // const stream =  noSerialize(await submitFiles())
-    //     // event
-    // })
+    })
 
     useTask$(({ track }) => {
         track(() => submitFiles.value)

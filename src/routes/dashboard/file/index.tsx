@@ -1,5 +1,6 @@
 import { $, component$, useSignal } from "@builder.io/qwik";
-import { type RequestHandler, routeLoader$ } from "@builder.io/qwik-city";
+import { type RequestHandler, routeLoader$, server$ } from "@builder.io/qwik-city";
+import admin from "~/firebase/admin";
 import { buttonR } from "~/recipes/button";
 import { imgContainerR } from "~/recipes/layouts";
 import { textR } from "~/recipes/text";
@@ -17,6 +18,19 @@ export const onRequest: RequestHandler = async ({
     sharedMap.set('user', user);
 };
 
+export const deleteImageServer = server$(async (data: { id: string, locations: string[], userId: string }) => {
+    const storage = admin.storage()
+    const firestore = admin.firestore()
+    try {
+        const promises = data.locations.map(l => storage.bucket().file(l).delete())
+        await Promise.allSettled(promises)
+        await firestore.collection(data.userId).doc("files").collection("images").doc(data.id).delete()
+        return "success"
+    } catch {
+        return "error"
+    }
+})
+
 export const userLoader = routeLoader$(({ sharedMap }) => {
 
     const userToken = sharedMap.get("user_token")
@@ -30,64 +44,38 @@ export const userLoader = routeLoader$(({ sharedMap }) => {
     return result
 });
 
-export const useFilesLoader = routeLoader$(() => {
-    const files = [
-        {
-            id: "1",
-            image: "https://images.unsplash.com/photo-1691036561870-e2badbd0fd22",
-            name: "room.png",
-            selected: false
-        },
-        {
-            id: "2",
-            image: "https://images.unsplash.com/photo-1691418173295-3c3a31c63527",
-            name: "beach.png",
-            selected: false
-        },
-        {
-            id: "3",
-            image: "https://images.unsplash.com/photo-1691483059022-e8ad9f2d9d12",
-            name: "forest.jpg",
-            selected: false
-        },
-        {
-            id: "4",
-            image: "https://images.unsplash.com/photo-1682188299490-1e6e9c98bac8",
-            name: "penguin.jpg",
-            selected: false
-        },
-        {
-            id: "5",
-            image: "https://images.unsplash.com/photo-1691546039838-2494ecd6afd6",
-            name: "marmol.jpg",
-            selected: false
-        },
-        {
-            id: "6",
-            image: "https://images.unsplash.com/photo-1691546039838-2494ecd6afd6",
-            name: "marmol.jpg",
-            selected: false
-        },
-        {
-            id: "7",
-            image: "https://images.unsplash.com/photo-1691546039838-2494ecd6afd6",
-            name: "marmol.jpg",
-            selected: false
-        },
-        {
-            id: "8",
-            image: "https://images.unsplash.com/photo-1691546039838-2494ecd6afd6",
-            name: "marmol.jpg",
-            selected: false
-        },
-        {
-            id: "9",
-            image: "https://images.unsplash.com/photo-1691546039838-2494ecd6afd6",
-            name: "marmol.jpg",
-            selected: false
-        },
-    ]
+export const useFilesLoader = routeLoader$(async ({ cookie }) => {
+    const user = cookie.get("user")
+    if (user == null) return;
+    const userData = user.json() as { id: string }
+    const db = admin.firestore()
+    const images = await db.collection(userData.id).doc("files").collection("images").get()
 
+    const files: { id: string, name: string, selected: boolean, fullRes: string, halfRes: string, medRes: string, lowRes: string, locations: string[] }[] = []
+
+    images.forEach((res) => {
+        const data = res.data()
+        const id = res.id
+        const fullImageRes = data.fullRes.image
+        const halfRes = data.halfRes.image
+        const medRes = data.medRes.image
+        const lowRes = data.lowRes.image
+
+        const locationFullRes = data.fullRes.location
+        const locationhalfRes = data.halfRes.location
+        const locationMedRes = data.medRes.location
+        const locationLowRes = data.lowRes.location
+
+
+        files.push({
+            id,
+            name: data.filename,
+            selected: false,
+            fullRes: fullImageRes,
+            halfRes, medRes, lowRes,
+            locations: [locationFullRes, locationhalfRes, locationMedRes, locationLowRes]
+        })
+    })
     return files
 });
 
@@ -97,15 +85,15 @@ export default component$(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const user = userLoader();
     const initialImages = useFilesLoader()
-    const images = useSignal(initialImages.value);
-    const selectedImage = useSignal<{ id: string, image: string, name: string } | null>(null)
+    const images = useSignal(initialImages.value ?? []);
+    const selectedImage = useSignal<{ id: string, images: string[], name: string, locations: string[] } | null>(null)
 
     const selectImage = $((id: string) => {
         images.value = images.value.map(img => {
             if (img.id == id) {
                 img.selected = !img.selected
                 if (img.selected) {
-                    selectedImage.value = img
+                    selectedImage.value = { id, images: [img.fullRes, img.halfRes, img.medRes, img.lowRes], name: img.name, locations: img.locations }
                 } else {
                     selectedImage.value = null
                 }
@@ -116,13 +104,18 @@ export default component$(() => {
         })
     });
 
-    const copyUrl = $((url: string) => {
-        navigator.clipboard.writeText(url);
+    const copyUrl = $((url: string[]) => {
+        navigator.clipboard.writeText(url.join(","));
     })
 
-    const deleteImage = $((id: string) => {
-        if (id == "") return;
-        console.log(id)
+    const deleteImage = $(async (data: { id: string, locations: string[] }) => {
+        if (data.id == "") return;
+
+        const result = await deleteImageServer({ id: data.id, locations: data.locations, userId: user.value.user.id });
+        if (result == "success") {
+            images.value = images.value.filter(i => i.id != data.id)
+            selectedImage.value = null
+        }
     })
 
     return (
@@ -145,19 +138,17 @@ export default component$(() => {
                     })}>
                         <div class={css({ display: "flex", flex: "1", alignContent: "baseline", flexDir: "row", flexWrap: "wrap", gap: "lg", overflow: "auto", pb: "10px" })}>
                             {
-                                images.value.map(({ image, id, selected, name }) => {
-                                    const url = `url("${image}")`
+                                images.value.map(({ lowRes, id, selected, name }) => {
+                                    const url = `url("${lowRes}")`
                                     return (
                                         <div key={id}
                                             class={selected ? imgContainerR({ shadow: "selected" }) : imgContainerR({ shadow: "unselected" })}
                                             onClick$={() => selectImage(id)}
                                         >
-                                            <div data-img-selected={selected} data-image-view class={css({ mb: "6px" })} style={{ backgroundImage: url }}>
-
-                                            </div>
-                                            <p class={textR({ size: "md", weight: "regular" })}>
+                                            <div data-img-selected={selected} data-image-view class={css({ mb: "6px" })} style={{ backgroundImage: url }}></div>
+                                            <span class={textR({ size: "md", weight: "regular" })}>
                                                 {name}
-                                            </p>
+                                            </span>
                                         </div>
                                     )
                                 })
@@ -168,22 +159,22 @@ export default component$(() => {
 
                 {
                     selectedImage.value &&
-                    <div class={css({ flex: "0.3", bg: "complement", flexDirection: "row", borderRadius: "md", boxSizing: "border-box", display: "flex" })}>
+                    <div class={css({ flex: "0.8", bg: "complement", flexDirection: "row", borderRadius: "md", boxSizing: "border-box", display: "flex" })}>
                         <div class={css({ px: "md", flex: "1", display: "flex", flexDir: "column" })}>
-                            <div class={css({ py: "py" })}>
+                            <div class={css({ py: "py", textWrap: "wrap", overflowX: "clip", maxW: "200px", whiteSpace: "nowrap" })}>
                                 <p class={textR({ size: "lg", weight: "regular" })}>
                                     {selectedImage.value.name}
                                 </p>
                             </div>
                             <div class={css({ mx: "auto" })}>
-                                <img class={css({ borderRadius: "md" })} src={selectedImage.value.image} alt={selectedImage.value.name} width={"220"} height={"200"} />
+                                <img class={css({ borderRadius: "md" })} src={selectedImage.value.images[0]} alt={selectedImage.value.name} width={"400"} height={"200"} />
                             </div>
                             <div class={css({ display: "flex", justifyContent: "space-around", py: "sm" })}>
-                                <button onClick$={() => copyUrl(selectedImage.value?.image ?? "")} class={buttonR({ colors: "outline" })}>Copy url</button>
+                                <button onClick$={() => copyUrl(selectedImage.value?.images ?? [])} class={buttonR({ colors: "outline" })}>Copy url</button>
                                 <button disabled class={buttonR({ colors: "primary" })}>Copy Image</button>
                             </div>
                             <div class={css({ mt: "auto", display: "flex", flexDir: "column", pb: "md" })}>
-                                <button onClick$={() => deleteImage(selectedImage.value?.id ?? "")} class={buttonR({ colors: "danger" })}>Delete</button>
+                                <button onClick$={() => deleteImage({ id: selectedImage.value?.id ?? "", locations: selectedImage.value?.locations ?? [] })} class={buttonR({ colors: "danger" })}>Delete</button>
                             </div>
                         </div>
                     </div>

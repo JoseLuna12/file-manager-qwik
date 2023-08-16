@@ -157,6 +157,10 @@ export const imgContainerR = cva({
   base: {
     p: "15px",
     h: "190px",
+    w: "225px",
+    overflowX: "clip",
+    textWrap: "nowrap",
+    textOverflow: "ellipsis",
     backgroundColor: "bg",
     borderRadius: "20px",
     transition: "ease-in-out, 0.3s",

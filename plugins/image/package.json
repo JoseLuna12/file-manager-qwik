@@ -1,0 +1,13 @@
+{
+  "name": "image-util",
+  "version": "0.1.0",
+  "files": [
+    "image_util_bg.wasm",
+    "image_util.js",
+    "image_util_bg.js",
+    "image_util.d.ts"
+  ],
+  "module": "image_util.js",
+  "types": "image_util.d.ts",
+  "sideEffects": false
+}
